@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Store</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Product Store</h1>
+
+        <!-- Filter and Sort controls -->
+        <div class="filter-sort-container">
+            <div>
+                <label for="categoryFilter">Filter by Category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All</option>
+                    <option value="men's clothing">Men's Clothing</option>
+                    <option value="women's clothing">Women's Clothing</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="jewelry">Jewelry</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="sortPrice">Sort by Price:</label>
+                <select id="sortPrice">
+                    <option value="none">None</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product List -->
+        <div id="productList">
+            <!-- Products will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://fakestoreapi.com/products';
+
+        // Function to fetch products from API
+        async function fetchProducts() {
+            const response = await fetch(apiUrl);
+            const products = await response.json();
+            return products;
+        }
+
+        // Function to display products
+        function displayProducts(products) {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product';
+                productElement.innerHTML = `
+                    <div class="product-info">
+                        <img src="${product.image}" alt="${product.title}">
+                        <div>
+                            <h3>${product.title}</h3>
+                            <p>Category: ${product.category}</p>
+                            <p>Price: $${product.price}</p>
+                        </div>
+                    </div>
+                `;
+                productList.appendChild(productElement);
+            });
+        }
+
+        // Function to sort products
+        function sortProducts(products, sortType) {
+            if (sortType === 'asc') {
+                products.sort((a, b) => a.price - b.price);
+            } else if (sortType === 'desc') {
+                products.sort((a, b) => b.price - a.price);
+            }
+        }
+
+        // Function to filter products by category
+        function filterProducts(products, category) {
+            if (category === 'all') {
+                return products;
+            } else {
+                return products.filter(product => product.category === category);
+            }
+        }
+
+        // Event listeners for filter and sort controls
+        document.getElementById('categoryFilter').addEventListener('change', async (event) => {
+            const category = event.target.value;
+            let products = await fetchProducts();
+            products = filterProducts(products, category);
+            displayProducts(products);
+        });
+
+        document.getElementById('sortPrice').addEventListener('change', async (event) => {
+            const sortType = event.target.value;
+            let products = await fetchProducts();
+            sortProducts(products, sortType);
+            displayProducts(products);
+        });
+
+        // Initial load
+        fetchProducts().then(products => {
+            displayProducts(products);
+        });
+    </script>
+</body>
+
+</html>
